@@ -303,13 +303,14 @@ public class ExcelService {
             sb.append('\n');
         }
 
-        String PATH = "C:\\Users\\bod\\OneDrive\\Dev\\Personal\\exit_strategy\\data_files\\csv\\";//"C:\\Users\\bod\\Documents\\data_files\\csv\\";
+        String PATH = "../data_files/csv/";
         int year = raceResult.getRaceDate().getYear();
         String raceTrack = raceResult.getTrack().getName();
         String dist = raceResult.getDistanceSurfaceTrackRecord().getRaceDistance().getText().toLowerCase();
         dist = dist.replace(" ","_");
         dist = dist.replace("about_", "");
-        File dirDist = new File(PATH+"\\"+dist);
+        File dirDist = new File(PATH+"/"+dist);
+        String abPath = dirDist.getAbsolutePath();
 
         if(!dirDist.exists()){
             dirDist.mkdir();
@@ -317,17 +318,17 @@ public class ExcelService {
 
 
 
-        File file = new File(PATH+"\\"+dist+"\\"+raceResult.getRaceDate().format(DateTimeFormatter.BASIC_ISO_DATE)+"_"+raceTrack+"_race"+raceResult.getRaceNumber()+"_"+dist+".csv");
+        File file = new File(PATH+"/"+dist+"/"+raceResult.getRaceDate().format(DateTimeFormatter.BASIC_ISO_DATE)+"_"+raceTrack+"_race"+raceResult.getRaceNumber()+"_"+dist+".csv");
 
 
         colCheck.put(file, idx);
         System.out.println(file.getName()+": "+idx);
-        String integrityPath = PATH+"\\data_integrity";
+        String integrityPath = PATH+"/data_integrity";
         File integrity = new File(integrityPath);
         if(!integrity.exists()){
             integrity.mkdir();
         }
-        File colFile = new File(integrityPath+"\\data_integrity.csv");
+        File colFile = new File(integrityPath+"/data_integrity.csv");
         BufferedWriter bf = null;
         if(colFile.createNewFile()){
             bf = new BufferedWriter(new FileWriter(colFile));

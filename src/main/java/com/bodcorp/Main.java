@@ -13,17 +13,19 @@ public class Main {
 
     public static void main(String[] args) {
 	// write your code here
-        String basePath = "C:\\Users\\bod\\OneDrive\\Dev\\Personal\\exit_strategy\\data_files\\";
+        
+        String basePath = "../";//"C:\\Users\\bod\\OneDrive\\Dev\\Personal\\exit_strategy\\data_files\\";
         String[] directoriesToParse = {
                 //basePath+"pdf\\CD",
                 //basePath+"pdf\\FP",
                 //basePath+"pdf\\HAW",
-                basePath+"pdf\\2021"
+                basePath+"pdf/2021"
                 //basePath+"pdf\\2020"
                 //basePath+"pdf\\2019",
                 //basePath+"pdf\\2018"
         };
         for(String path : directoriesToParse) {
+            String absPath = new File(path).getAbsolutePath();
             File[] files = new File(path).listFiles();
             for (File f : files) {
                 //File test = new File("C:\\Users\\bod\\OneDrive\\Dev\\Personal\\exit_strategy\\data_files\\pdf\\2020\\CD_2020-06-21.pdf");
@@ -39,7 +41,7 @@ public class Main {
                 XSSFWorkbook wbook = ex.create(raceResults);
                 String fname = f.getName();
                 fname = fname.substring(0, fname.length() - 3);
-                File file = new File(basePath+"excel\\" + fname + "xlsx");
+                File file = new File(basePath+"excel/" + fname + "xlsx");
 
                 if (file != null) {
                     try (FileOutputStream outputStream = new FileOutputStream(file)) {
