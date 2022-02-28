@@ -1,7 +1,7 @@
 package com.bodcorp;
 
-import com.robinhowlett.chartparser.ChartParser;
-import com.robinhowlett.chartparser.charts.pdf.RaceResult;
+import com.bodcorp.chartparser.ChartParser;
+import com.bodcorp.chartparser.charts.pdf.RaceResult;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
