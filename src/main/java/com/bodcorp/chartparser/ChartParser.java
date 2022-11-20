@@ -133,7 +133,7 @@ public class ChartParser {
     /**
      * Loads the file into PDFBox's PDDocument, splits it into pages, and converts to CSV strings
      */
-    static List<String> convertToCsv(File pdfChartFile) throws ChartParserException {
+    static List<String> convertToCsv(byte [] pdfChartFile) throws ChartParserException {
         List<String> csvCharts = new ArrayList<>();
         try (PDDocument charts = PDDocument.load(pdfChartFile)) {
             Splitter splitter = new Splitter();
@@ -292,7 +292,7 @@ public class ChartParser {
         return trackService;
     }
 
-    public List<RaceResult> parse(File pdfChartFile) {
+    public List<RaceResult> parse(byte [] pdfChartFile, String fileName) {
         List<RaceResult> raceResults = new ArrayList<>();
 
         List<String> chartCsvs;
@@ -302,7 +302,7 @@ public class ChartParser {
             // List
             chartCsvs = convertToCsv(pdfChartFile);
         } catch (ChartParserException e) {
-            LOGGER.error(fileLogMessage(e.getMessage(), pdfChartFile, 0));
+            LOGGER.error(fileLogMessage(e.getMessage(), fileName, 0));
             return raceResults;
         }
 
@@ -315,7 +315,7 @@ public class ChartParser {
                 // Jackson (the CSV data format)
                 chartCharacters = readChartCsv(chartCsv);
             } catch (ChartParserException e) {
-                LOGGER.error(fileLogMessage(e.getMessage(), pdfChartFile, index));
+                LOGGER.error(fileLogMessage(e.getMessage(), fileName, index));
                 continue;
             }
 
@@ -448,7 +448,7 @@ public class ChartParser {
                 try {
                     winners = Winner.parse(lines);
                 } catch (NoWinnersDeclaredException e) {
-                    LOGGER.warn(fileRaceLogMessage(e.getMessage(), pdfChartFile, index,
+                    LOGGER.warn(fileRaceLogMessage(e.getMessage(), fileName, index,
                             raceResultBuilder));
                 }
 
@@ -573,11 +573,11 @@ public class ChartParser {
                 RaceResult raceResult = raceResultBuilder.build();
                 raceResults.add(raceResult);
             } catch (InvalidRaceException | NoLinesToParse e) {
-                LOGGER.error(fileLogMessage(e.getMessage(), pdfChartFile, index));
+                LOGGER.error(fileLogMessage(e.getMessage(), fileName, index));
                 continue;
             } catch (ChartParserException e) {
                 try {
-                    LOGGER.error(fileRaceLogMessage(e.getMessage(), pdfChartFile, index,
+                    LOGGER.error(fileRaceLogMessage(e.getMessage(), fileName, index,
                             raceResultBuilder));
                 }
                 catch (Exception o){
@@ -611,15 +611,15 @@ public class ChartParser {
         }
     }
 
-    private String fileLogMessage(String message, File pdfChartFile, int index) {
-        return String.format("File: %s, page: %d - %s", pdfChartFile.getName(), (index + 1),
+    private String fileLogMessage(String message, String fileName, int index) {
+        return String.format("File: %s, page: %d - %s", fileName , (index + 1),
                 message);
     }
 
     // logs with the race details (track, date, race number, and breed)
-    private String fileRaceLogMessage(String message, File pdfChartFile, int index,
+    private String fileRaceLogMessage(String message, String fileName, int index,
             RaceResult.Builder raceResultBuilder) {
-        return String.format("File: %s, page: %d, race: %s - %s", pdfChartFile.getName(),
+        return String.format("File: %s, page: %d, race: %s - %s", fileName,
                 (index + 1), raceResultBuilder.summaryText(), message);
     }
 

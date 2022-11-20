@@ -224,129 +224,160 @@ public class ExcelService {
                 }
             }
 
-            try {
-                printAsCsv(sheet, raceResult);
-            }
-            catch(IOException io){
-                System.out.println(io.getMessage());
-            }
+            // try {
+            //     printAsCsv(sheet, raceResult);
+            // }
+            // catch(IOException io){
+            //     System.out.println(io.getMessage());
+            // }
 
         }
         return workbook;
     }
 
-    private void printAsCsv(XSSFSheet sheet, RaceResult raceResult) throws IOException {
+    //public void printAsCsv(XSSFSheet sheet, RaceResult raceResult) throws IOException {
+    public ArrayList<String> printAsCsv(XSSFWorkbook wbook) throws IOException  {
         // Iterate through all the rows in the selected sheet
+        ArrayList<String> csvStrings = new ArrayList<String>();
+        int race = 1;
+        for(int i=0; i<wbook.getNumberOfSheets();i++){
+            XSSFSheet sheet = wbook.getSheetAt(i);
+            Iterator<Row> rowIterator = sheet.iterator();
+            StringBuffer sb = new StringBuffer();
+            Dictionary colCheck = new Hashtable();
+            int idx = 0;
+            String schema = "";
+            
+            while (rowIterator.hasNext()) {
 
-        Iterator<Row> rowIterator = sheet.iterator();
-        StringBuffer sb = new StringBuffer();
-        Dictionary colCheck = new Hashtable();
-        int idx = 0;
-        String schema = "";
-        while (rowIterator.hasNext()) {
+                Row row = rowIterator.next();
 
-            Row row = rowIterator.next();
+                // Iterate through all the columns in the row and build ","
+                // separated string
+                Iterator<Cell> cellIterator = row.cellIterator();
+                idx = 0;
+                while (cellIterator.hasNext()) {
+                    Cell cell = cellIterator.next();
+                    idx = cell.getColumnIndex();
+                    if (sb.length() != 0 && cell.getColumnIndex() != 0) {
+                        sb.append(",");
+                    }
 
-            // Iterate through all the columns in the row and build ","
-            // separated string
-            Iterator<Cell> cellIterator = row.cellIterator();
-            idx = 0;
-            while (cellIterator.hasNext()) {
-                Cell cell = cellIterator.next();
-                idx = cell.getColumnIndex();
-                if (sb.length() != 0 && cell.getColumnIndex() != 0) {
-                    sb.append(",");
+                    // If you are using poi 4.0 or over, change it to
+                    // cell.getCellType
+                    switch (cell.getCellTypeEnum()) {
+                        case STRING:
+                            String tempVal = cell.getStringCellValue();
+                            if(tempVal.contains(",")){
+
+                                tempVal = "\""+tempVal+"\"";
+                            }
+                            if(cell.getColumnIndex() == 27 && row.getRowNum() > 0){
+                                tempVal = "00:0"+tempVal;
+                            }
+                            sb.append(tempVal);
+                            break;
+                        case NUMERIC:
+                            if(cell.getColumnIndex() == 0){
+                                Date cellDate = cell.getDateCellValue();
+                                Instant inst = cellDate.toInstant();
+                                LocalDate ld = inst.atZone(ZoneId.systemDefault()).toLocalDate();
+                                String value = ld.format(DateTimeFormatter.ofPattern("YYYY-MM-dd"));
+                                sb.append(value);
+                            }
+                            else {
+                                Double cellValue = cell.getNumericCellValue();
+                                Double decimalValue = cellValue - cellValue.intValue();
+                                if(decimalValue > 0)
+                                    sb.append(cellValue);
+                                else
+                                    sb.append(cellValue.intValue());
+                            }
+                            break;
+                        case BOOLEAN:
+                            sb.append(cell.getBooleanCellValue());
+                            break;
+                        default:
+                    }
                 }
+                if(row.getRowNum() == 0){
+                    schema = sb.toString();
 
-                // If you are using poi 4.0 or over, change it to
-                // cell.getCellType
-                switch (cell.getCellTypeEnum()) {
-                    case STRING:
-                        String tempVal = cell.getStringCellValue();
-                        if(tempVal.contains(",")){
-
-                            tempVal = "\""+tempVal+"\"";
-                        }
-                        if(cell.getColumnIndex() == 27 && row.getRowNum() > 0){
-                            tempVal = "00:0"+tempVal;
-                        }
-                        sb.append(tempVal);
-                        break;
-                    case NUMERIC:
-                        if(cell.getColumnIndex() == 0){
-                            Date cellDate = cell.getDateCellValue();
-                            Instant inst = cellDate.toInstant();
-                            LocalDate ld = inst.atZone(ZoneId.systemDefault()).toLocalDate();
-                            String value = ld.format(DateTimeFormatter.ofPattern("YYYY-MM-dd"));
-                            sb.append(value);
-                        }
-                        else {
-                            Double cellValue = cell.getNumericCellValue();
-                            Double decimalValue = cellValue - cellValue.intValue();
-                            if(decimalValue > 0)
-                                sb.append(cellValue);
-                            else
-                                sb.append(cellValue.intValue());
-                        }
-                        break;
-                    case BOOLEAN:
-                        sb.append(cell.getBooleanCellValue());
-                        break;
-                    default:
                 }
+                //System.out.println(sb.toString());
+                sb.append('\n');
+                
             }
-            if(row.getRowNum() == 0){
-                schema = sb.toString();
+            String toadd = sb.toString();
+            csvStrings.add(toadd);
 
-            }
-            sb.append('\n');
+
+            // File file = new File("sample"+race+".csv");
+            // BufferedWriter writer = null;
+            // try {
+            //     writer = new BufferedWriter(new FileWriter(file));
+            //     writer.write(toadd);
+            //     race++;
+            // }
+            // finally {
+            //     if (writer != null) writer.close();
+            // }
+
+            // //writing file to blob
+
+
+            // //writing file locally
+            // String PATH = "../data_files/csv/";
+            // String raceTrack = raceResult.getTrack().getName();
+            // String dist = raceResult.getDistanceSurfaceTrackRecord().getRaceDistance().getText().toLowerCase();
+            // dist = dist.replace(" ","_");
+            // dist = dist.replace("about_", "");
+            // File dirDist = new File(PATH+"/"+dist);
+
+            // if(!dirDist.exists()){
+            //     dirDist.mkdir();
+            // }
+
+
+
+            // File file = new File(PATH+"/"+dist+"/"+raceResult.getRaceDate().format(DateTimeFormatter.BASIC_ISO_DATE)+"_"+raceTrack+"_race"+raceResult.getRaceNumber()+"_"+dist+".csv");
+
+
+            // colCheck.put(file, idx);
+            // System.out.println(file.getName()+": "+idx);
+            // String integrityPath = PATH+"/data_integrity";
+            // File integrity = new File(integrityPath);
+            // if(!integrity.exists()){
+            //     integrity.mkdir();
+            // }
+            // File colFile = new File(integrityPath+"/data_integrity.csv");
+            // BufferedWriter bf = null;
+            // if(colFile.createNewFile()){
+            //     bf = new BufferedWriter(new FileWriter(colFile));
+            //     bf.write("filename,num_columns,distance,schema\n");
+            //     bf.write(file.getName()+","+idx+","+dist+",\""+schema+"\"\n");
+            // }
+            // else{
+            //     bf = new BufferedWriter(new FileWriter(colFile, true));
+            //     bf.append(file.getName()+","+idx+","+dist+",\""+schema+"\"\n");
+            // }
+            // bf.close();
+
+            // BufferedWriter writer = null;
+            // try {
+            //     writer = new BufferedWriter(new FileWriter(file));
+            //     writer.write(sb.toString());
+            // } finally {
+            //     if (writer != null) writer.close();
+            // }
+
+
         }
 
-        String PATH = "../data_files/csv/";
-        int year = raceResult.getRaceDate().getYear();
-        String raceTrack = raceResult.getTrack().getName();
-        String dist = raceResult.getDistanceSurfaceTrackRecord().getRaceDistance().getText().toLowerCase();
-        dist = dist.replace(" ","_");
-        dist = dist.replace("about_", "");
-        File dirDist = new File(PATH+"/"+dist);
-        String abPath = dirDist.getAbsolutePath();
+        return csvStrings;
+        
 
-        if(!dirDist.exists()){
-            dirDist.mkdir();
-        }
-
-
-
-        File file = new File(PATH+"/"+dist+"/"+raceResult.getRaceDate().format(DateTimeFormatter.BASIC_ISO_DATE)+"_"+raceTrack+"_race"+raceResult.getRaceNumber()+"_"+dist+".csv");
-
-
-        colCheck.put(file, idx);
-        System.out.println(file.getName()+": "+idx);
-        String integrityPath = PATH+"/data_integrity";
-        File integrity = new File(integrityPath);
-        if(!integrity.exists()){
-            integrity.mkdir();
-        }
-        File colFile = new File(integrityPath+"/data_integrity.csv");
-        BufferedWriter bf = null;
-        if(colFile.createNewFile()){
-            bf = new BufferedWriter(new FileWriter(colFile));
-            bf.write("filename,num_columns,distance,schema\n");
-            bf.write(file.getName()+","+idx+","+dist+",\""+schema+"\"\n");
-        }
-        else{
-            bf = new BufferedWriter(new FileWriter(colFile, true));
-            bf.append(file.getName()+","+idx+","+dist+",\""+schema+"\"\n");
-        }
-        bf.close();
-
-        BufferedWriter writer = null;
-        try {
-            writer = new BufferedWriter(new FileWriter(file));
-            writer.write(sb.toString());
-        } finally {
-            if (writer != null) writer.close();
-        }
+        
     }
 
 

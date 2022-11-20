@@ -1,21 +1,13 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Attach to Java Functions",
             "type": "java",
-            "name": "Launch Current File",
-            "request": "launch",
-            "mainClass": "${file}"
-        },
-        {
-            "type": "java",
-            "name": "Launch Main",
-            "request": "launch",
-            "mainClass": "com.bodcorp.Main",
-            "projectName": "pdfConverter"
+            "request": "attach",
+            "hostName": "127.0.0.1",
+            "port": 5005,
+            "preLaunchTask": "func: host start"
         }
     ]
 }
